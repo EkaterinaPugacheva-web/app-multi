@@ -1,8 +1,7 @@
 fastapi
-uvicorn
+uvicorn[standard]
 pandas
 numpy
 joblib
 openpyxl
-python-multipart
-scikit-learn==1.2.2
+scikit-learn
