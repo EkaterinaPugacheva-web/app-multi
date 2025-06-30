@@ -10,6 +10,8 @@ import os
 from pathlib import Path
 import uuid
 
+from fastapi import FastAPI
+
 app = FastAPI()
 
 # Конфигурация путей
