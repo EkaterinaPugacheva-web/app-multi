@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MultiREFAGE – Age Estimation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white min-h-screen flex flex-col items-center justify-between px-4 py-6 text-gray-800">
+
+  <!-- ЛОГОТИП ВВЕРХУ -->
+  <img src="/static/logo_multiref.png" alt="MultiREFAGE Logo" class="h-16 mb-4">
+
+  <!-- ОСНОВНОЙ КОНТЕЙНЕР -->
+  <div class="max-w-2xl w-full p-8 rounded-2xl shadow-xl border border-gray-200">
+
+    <!-- ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА -->
+    <div class="flex justify-end mb-2 text-sm">
+      <button onclick="setLang('en')" class="mr-2 hover:underline text-blue-700">EN</button>
+      <button onclick="setLang('ru')" class="hover:underline text-blue-700">RU</button>
+    </div>
+
+    <!-- ЗАГОЛОВОК -->
+    <h1 class="text-3xl font-bold text-center mb-4" data-en="Age Estimation by Suture Obliteration" data-ru="Оценка возраста по степени облитерации швов">
+      Age Estimation by Suture Obliteration
+    </h1>
+
+    <!-- ОПИСАНИЕ -->
+    <p class="text-center mb-4 text-sm" data-en="MultiREFAGE is an application for estimating the age of unidentified skulls using regression modeling (Random Forest Regressor). Age is estimated based on the degree of suture obliteration (Meindl, Lovejoy, 1985), taking into account the preliminary age estimate, which is used to select a reference group for model training."
+       data-ru="MultiREFAGE — это приложение для оценки возраста по черепу с использованием регрессионных моделей (Random Forest Regressor). Возраст оценивается по степени облитерации швов черепа (Meindl, Lovejoy, 1985) с учетом предварительной возрастной оценки, которая используется при подборе референтной серии, наиболее подходящей для обучения модели.">
+      MultiREFAGE is an application for estimating the age...
+    </p>
+
+    <p class="text-center text-sm text-gray-500 mb-6" data-en='Method details are available <a href="/static/text.pdf" target="_blank" class="text-blue-600 underline">here</a>.'
+       data-ru='Описание метода на примере модели SVR доступно в публикации <a href="/static/text.pdf" target="_blank" class="text-blue-600 underline">по ссылке</a>.'>
+      A description of the method using the SVR model as an example is available in the publication (in Russian) <a href="/static/text.pdf" target="_blank" class="text-blue-600 underline">here</a>.
+    </p>
+
+    <!-- ССЫЛКА НА ПРИМЕР -->
+    <div class="mb-4 text-center">
+      <a href="/static/example.xlsx" download class="text-blue-600 hover:underline text-sm" data-en="📄 Download example file (example.xlsx)" data-ru="📄 Скачать пример файла (example.xlsx)">
+        📄 Download example file (example.xlsx)
+      </a>
+    </div>
+
+    <!-- ФОРМА ЗАГРУЗКИ -->
+    <form id="upload-form" class="flex flex-col gap-4 items-center">
+      <input type="file" id="file-input" accept=".xlsx"
+        class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4
+               file:rounded-full file:border-0 file:text-sm file:font-semibold
+               file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required />
+
+      <button type="submit"
+        class="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition text-sm"
+        data-en="Upload and Predict" data-ru="Загрузить и рассчитать">
+        Upload and Predict
+      </button>
+    </form>
+
+    <p id="status" class="mt-4 text-center text-sm text-gray-600"></p>
+  </div>
+
+
+
+
+ 
+ <!-- ПОДВАЛ -->
+  <footer class="text-center text-xs text-gray-500 mt-6 flex flex-col items-center">
+<p data-en="This application was developed with support from the Russian Science Foundation (Project №24-28-01050 “Searching for effective methods for sex and age estimation by skull”)."
+       data-ru="Приложение подготовлено при поддержке Российского Научного Фонда (Проект №24-28-01050 «В поисках эффективных методов оценки пола и возраста по черепу»).">
+      This application was developed with support from the Russian Science Foundation...
+    </p>
+    <img src="/static/rsf.png" alt="RSF Logo" class="h-10 mt-2">
+  </footer>
+
+  <!-- ЯЗЫКОВОЙ СКРИПТ -->
+  <script>
+    function setLang(lang) {
+      document.querySelectorAll('[data-en]').forEach(el => {
+        el.innerHTML = el.getAttribute('data-' + lang);
+      });
+    }
+
+    const form = document.getElementById('upload-form');
+    const fileInput = document.getElementById('file-input');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.textContent = "Processing your file...";
+
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('/predict/', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) throw new Error("Prediction failed.");
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "predictions.xlsx";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        status.textContent = "Success! Your results are ready.";
+      } catch (err) {
+        console.error(err);
+        status.textContent = "An error occurred while processing your file.";
+      }
+    });
+
+    // Установим язык по умолчанию
+    setLang('en');
+  </script>
+</body>
+</html>
