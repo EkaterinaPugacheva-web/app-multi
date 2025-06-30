@@ -1,12 +1,10 @@
 services:
   - type: web
-    name: multirefage
-    runtime: python
-    buildCommand: |
-      pip install -r app/requirements.txt
-    startCommand: |
-      uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    name: fastapi-app
+    env: python
+    buildCommand: ""
+    startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
+    plan: free
     envVars:
       - key: PYTHON_VERSION
-        value: 3.10.13
-    plan: free
+        value: 3.10
