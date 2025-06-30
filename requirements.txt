@@ -5,3 +5,5 @@ numpy
 joblib
 openpyxl
 scikit-learn==1.0.2
+setuptools>=65.0.0
+wheel
